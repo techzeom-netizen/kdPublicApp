@@ -42,7 +42,7 @@ export default function Academics() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 24, paddingBottom: 110 }, flex: { flex: 1 }, pressed: { opacity: 0.84 },
+  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 24, paddingBottom: 10 }, flex: { flex: 1 }, pressed: { opacity: 0.84 },
   kicker: { color: colors.maroon, fontSize: 10, fontWeight: '900', letterSpacing: 1.2 }, title: { color: colors.ink, fontSize: 32, fontWeight: '900', marginTop: 7 }, subtitle: { color: colors.slate, fontSize: 13, marginTop: 6 },
   performance: { backgroundColor: colors.maroon, borderRadius: 23, padding: 20, marginTop: 22, overflow: 'hidden', ...shadow }, performanceTop: { flexDirection: 'row', justifyContent: 'space-between' }, performanceLabel: { color: colors.gold, fontSize: 9, fontWeight: '900', letterSpacing: 1 }, performanceValue: { color: colors.white, fontSize: 39, fontWeight: '900', marginTop: 5 },
   trend: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.greenSoft, alignSelf: 'flex-start', paddingHorizontal: 9, paddingVertical: 6, borderRadius: 99 }, trendText: { color: colors.green, fontSize: 10, fontWeight: '900' },

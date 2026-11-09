@@ -33,7 +33,7 @@ export default function Timetable() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 12, paddingBottom: 110 }, flex: { flex: 1 },
+  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 12, paddingBottom: 10 }, flex: { flex: 1 },
   dayRow: { gap: 8, paddingVertical: 20 }, dayChip: { width: 60, height: 68, borderRadius: 17, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow }, dayChipActive: { backgroundColor: colors.maroon }, dayShort: { color: colors.slate, fontSize: 9, fontWeight: '900', textTransform: 'uppercase' }, dayDate: { color: colors.ink, fontSize: 17, fontWeight: '900', marginTop: 5 }, dayActiveText: { color: colors.white },
   nowCard: { backgroundColor: colors.navy, borderRadius: 18, padding: 15, flexDirection: 'row', alignItems: 'center' }, nowIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 11 }, nowLabel: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 }, nowTitle: { color: colors.white, fontSize: 13, fontWeight: '900', marginTop: 4 }, nowMeta: { color: '#B8C7D7', fontSize: 9, marginTop: 3 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, section: { color: colors.ink, fontSize: 18, fontWeight: '900', marginTop: 27, marginBottom: 13 }, periodCount: { color: colors.slate, fontSize: 10, marginTop: 17 },

@@ -1,13 +1,15 @@
 {
   "expo": {
-    "name": "KD Public School Parent Connect",
-    "slug": "kd-public-school-parent-connect",
+    "name": "KD Public Parent Control",
+    "slug": "kd-public-parent-control",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "kdparentconnect",
-    "plugins": ["expo-router", "expo-secure-store", "expo-notifications"],
+    "scheme": "kdpublicparentcontrol",
+    "plugins": [
+      "expo-router"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kdpublicschool.parentconnect"
@@ -24,7 +26,17 @@
       "package": "com.kdpublicschool.parentconnect"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "4817d0ee-75a0-4ad5-bef0-ccd801c5d0fb"
+      }
     }
   }
 }

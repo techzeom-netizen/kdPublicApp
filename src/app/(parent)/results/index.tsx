@@ -35,7 +35,7 @@ export default function Results() {
 function Summary({ value, label }: { value: string; label: string }) { return <View style={styles.summary}><Text style={styles.summaryValue}>{value}</Text><Text style={styles.summaryLabel}>{label}</Text></View>; }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 12, paddingBottom: 110 }, flex: { flex: 1 },
+  safe: { flex: 1, backgroundColor: colors.canvas }, page: { flex: 1 }, content: { padding: spacing.md, paddingTop: 12, paddingBottom: 10 }, flex: { flex: 1 },
   segment: { flexDirection: 'row', backgroundColor: '#E9EDF2', borderRadius: 14, padding: 4, marginTop: 20 }, segmentItem: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, segmentActive: { backgroundColor: colors.white, ...shadow }, segmentText: { color: colors.slate, fontSize: 11, fontWeight: '800' }, segmentTextActive: { color: colors.maroon },
   hero: { backgroundColor: colors.navy, borderRadius: 23, padding: 20, marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...shadow }, heroLabel: { color: colors.gold, fontSize: 9, fontWeight: '900', letterSpacing: 1.1 }, heroValue: { color: colors.white, fontSize: 40, fontWeight: '900', marginTop: 5 }, improvement: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 }, improvementText: { color: '#BBD8CA', fontSize: 9 },
   rankCircle: { width: 82, height: 82, borderRadius: 41, borderWidth: 6, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center' }, rankValue: { color: colors.white, fontSize: 26, fontWeight: '900' }, rankLabel: { color: '#B8C7D7', fontSize: 7, fontWeight: '900' },
