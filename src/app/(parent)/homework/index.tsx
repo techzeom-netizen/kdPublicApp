@@ -5,9 +5,17 @@ import {
   Clock3,
   FileText,
   Paperclip,
+  X,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { ScreenSkeleton } from "../../../components/ScreenSkeleton";
@@ -15,10 +23,18 @@ import { usePreviewLoading } from "../../../hooks/usePreviewLoading";
 import { homework } from "../../../mocks/data";
 import { colors, shadow, spacing } from "../../../theme";
 
-type Filter = "Pending" | "Upcoming" | "Completed";
+type Filter = "All" | "Pending" | "Completed" | "Overdue";
+type HomeworkItem = (typeof homework)[number];
+const teacherFor: Record<string, string> = {
+  Mathematics: "Ms. Ritu",
+  English: "Mrs. Mehta",
+  Science: "Mr. Dev",
+  Hindi: "Mrs. Joshi",
+};
 
 export default function Homework() {
   const [filter, setFilter] = useState<Filter>("Pending");
+  const [selected, setSelected] = useState<HomeworkItem | null>(null);
   const [completed, setCompleted] = useState<string[]>(
     homework
       .filter((item) => item.status === "Completed")
@@ -26,12 +42,14 @@ export default function Homework() {
   );
   const visible = useMemo(
     () =>
-      homework.filter((item, index) =>
+      homework.filter((item) =>
         filter === "Completed"
           ? completed.includes(item.id)
-          : filter === "Upcoming"
-            ? index > 0 && !completed.includes(item.id)
-            : !completed.includes(item.id),
+          : filter === "Overdue"
+            ? item.id === "science-plants" && !completed.includes(item.id)
+            : filter === "Pending"
+              ? !completed.includes(item.id) && item.id !== "science-plants"
+              : true,
       ),
     [completed, filter],
   );
@@ -68,28 +86,30 @@ export default function Homework() {
           </Text>
         </View>
         <View style={styles.filters}>
-          {(["Pending", "Upcoming", "Completed"] as Filter[]).map((item) => (
-            <Pressable
-              key={item}
-              style={[styles.filter, filter === item && styles.filterActive]}
-              onPress={() => setFilter(item)}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  filter === item && styles.filterTextActive,
-                ]}
+          {(["All", "Pending", "Completed", "Overdue"] as Filter[]).map(
+            (item) => (
+              <Pressable
+                key={item}
+                style={[styles.filter, filter === item && styles.filterActive]}
+                onPress={() => setFilter(item)}
               >
-                {item}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  style={[
+                    styles.filterText,
+                    filter === item && styles.filterTextActive,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </Pressable>
+            ),
+          )}
         </View>
         <Text style={styles.dateHeading}>
           {filter === "Completed"
             ? "Completed work"
-            : filter === "Upcoming"
-              ? "Coming up"
+            : filter === "Overdue"
+              ? "Past due"
               : "Needs attention"}
         </Text>
         {visible.length ? (
@@ -116,6 +136,9 @@ export default function Homework() {
                     {item.title}
                   </Text>
                   <Text style={styles.taskDetail}>{item.detail}</Text>
+                  <Text style={styles.teacher}>
+                    Assigned by {teacherFor[item.subject]} · {item.date}
+                  </Text>
                   <View style={styles.taskBottom}>
                     <View style={styles.dueRow}>
                       <Clock3
@@ -138,6 +161,14 @@ export default function Homework() {
                       <Text style={styles.attachmentText}>1 file</Text>
                     </View>
                   </View>
+                  <Pressable
+                    style={styles.detailButton}
+                    onPress={() => setSelected(item)}
+                  >
+                    <Text style={styles.detailButtonText}>
+                      View details & attachment
+                    </Text>
+                  </Pressable>
                 </View>
                 <Pressable
                   style={[styles.check, isDone && styles.checkDone]}
@@ -164,6 +195,63 @@ export default function Homework() {
           </View>
         )}
       </ScrollView>
+      <Modal
+        visible={Boolean(selected)}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelected(null)}
+      >
+        <View style={styles.modalShade}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalTop}>
+              <View>
+                <Text style={styles.modalKicker}>
+                  {selected?.subject.toUpperCase()}
+                </Text>
+                <Text style={styles.modalTitle}>{selected?.title}</Text>
+              </View>
+              <Pressable
+                style={styles.close}
+                onPress={() => setSelected(null)}
+                accessibilityLabel="Close homework details"
+              >
+                <X size={20} color={colors.ink} />
+              </Pressable>
+            </View>
+            <Text style={styles.modalBody}>{selected?.detail}</Text>
+            <View style={styles.attachmentPreview}>
+              <FileText size={24} color={colors.maroon} />
+              <View style={styles.flex}>
+                <Text style={styles.previewTitle}>Homework resource.pdf</Text>
+                <Text style={styles.previewMeta}>
+                  PDF attachment · Preview only
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.modalMeta}>
+              Teacher: {selected ? teacherFor[selected.subject] : ""}
+            </Text>
+            <Text style={styles.modalMeta}>
+              Assigned: {selected?.date} · {selected?.due}
+            </Text>
+            {selected ? (
+              <Pressable
+                style={styles.modalAction}
+                onPress={() => {
+                  toggle(selected.id);
+                  setSelected(null);
+                }}
+              >
+                <Text style={styles.modalActionText}>
+                  {completed.includes(selected.id)
+                    ? "Mark as pending"
+                    : "Mark as completed"}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -174,7 +262,7 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingTop: 12, paddingBottom: 10 },
   flex: { flex: 1 },
   summary: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     borderRadius: 20,
     padding: 16,
     flexDirection: "row",
@@ -253,6 +341,12 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginTop: 5,
   },
+  teacher: {
+    color: colors.muted,
+    fontSize: 8,
+    marginTop: 6,
+    fontWeight: "700",
+  },
   taskBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -263,6 +357,15 @@ const styles = StyleSheet.create({
   dueUrgent: { color: colors.red },
   attachment: { flexDirection: "row", alignItems: "center", gap: 3 },
   attachmentText: { color: colors.slate, fontSize: 8 },
+  detailButton: {
+    alignSelf: "flex-start",
+    marginTop: 11,
+    backgroundColor: colors.maroonTint,
+    borderRadius: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  detailButtonText: { color: colors.maroon, fontSize: 8, fontWeight: "900" },
   check: {
     width: 42,
     alignItems: "center",
@@ -292,4 +395,64 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   emptyText: { color: colors.slate, fontSize: 11, marginTop: 5 },
+  modalShade: {
+    flex: 1,
+    backgroundColor: "rgba(15,23,42,0.45)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    padding: 20,
+    paddingBottom: 34,
+  },
+  modalTop: { flexDirection: "row", justifyContent: "space-between", gap: 12 },
+  modalKicker: {
+    color: colors.maroon,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+  },
+  modalTitle: {
+    color: colors.ink,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "900",
+    marginTop: 5,
+  },
+  close: {
+    width: 38,
+    height: 38,
+    borderRadius: 13,
+    backgroundColor: colors.canvas,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalBody: {
+    color: colors.slate,
+    fontSize: 12,
+    lineHeight: 19,
+    marginTop: 16,
+  },
+  attachmentPreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    backgroundColor: colors.redSoft,
+    borderRadius: 15,
+    padding: 14,
+    marginTop: 16,
+  },
+  previewTitle: { color: colors.ink, fontSize: 11, fontWeight: "900" },
+  previewMeta: { color: colors.slate, fontSize: 9, marginTop: 3 },
+  modalMeta: { color: colors.slate, fontSize: 10, marginTop: 10 },
+  modalAction: {
+    backgroundColor: colors.maroon,
+    borderRadius: 14,
+    padding: 15,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  modalActionText: { color: colors.white, fontSize: 12, fontWeight: "900" },
 });

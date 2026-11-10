@@ -11,5 +11,5 @@ export function Logo({ dark = false, centered = false, large = false }: { dark?:
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 }, centered: { flexDirection: 'column', justifyContent: 'center', gap: 8 }, copyCentered: { alignItems: 'center' },
   logo: { width: 42, height: 42, resizeMode: 'contain' }, logoLarge: { width: 76, height: 76 },
-  name: { color: colors.navy, fontSize: 16, fontWeight: '800' }, nameLarge: { fontSize: 20 }, caption: { color: colors.maroon, fontSize: 11, fontWeight: '700', letterSpacing: 1 }, light: { color: colors.white },
+  name: { color: colors.maroon, fontSize: 16, fontWeight: '800' }, nameLarge: { fontSize: 20 }, caption: { color: colors.maroon, fontSize: 11, fontWeight: '700', letterSpacing: 1 }, light: { color: colors.white },
 });

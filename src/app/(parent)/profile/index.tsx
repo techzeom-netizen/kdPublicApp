@@ -67,7 +67,7 @@ export default function Profile() {
         <View style={styles.header}>
           <Logo />
           <View style={styles.settingsIcon}>
-            <Settings size={20} color={colors.navy} />
+            <Settings size={20} color={colors.maroon} />
           </View>
         </View>
         <Text style={styles.kicker}>PARENT ACCOUNT</Text>

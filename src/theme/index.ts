@@ -7,6 +7,7 @@ export const colors = {
   ink: '#0F172A',
   maroon: '#7A1724',
   maroonSoft: '#A63145',
+  maroonTint: '#F6E9EC',
   gold: '#D4A62F',
   goldSoft: '#FFF4CF',
   cream: '#F7F3E8',

@@ -5,9 +5,18 @@ import {
   Palette,
   Sparkles,
   Trophy,
+  X,
+  FileBadge2,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BrandGradient } from "../../../components/BrandGradient";
 import { ScreenHeader } from "../../../components/ScreenHeader";
@@ -24,7 +33,7 @@ const icons = {
   School: Sparkles,
 };
 const accents = {
-  Academic: colors.navy,
+  Academic: colors.maroon,
   Creative: colors.maroon,
   Sports: colors.green,
   School: colors.amber,
@@ -32,6 +41,9 @@ const accents = {
 
 export default function Achievements() {
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
+  const [certificate, setCertificate] = useState<
+    (typeof achievements)[number] | null
+  >(null);
   const visible = useMemo(
     () =>
       achievements.filter(
@@ -127,11 +139,52 @@ export default function Achievements() {
                   <Text style={styles.award}>{item.award}</Text>
                 </View>
                 <Text style={styles.description}>{item.description}</Text>
+                <Pressable
+                  style={styles.certificateButton}
+                  onPress={() => setCertificate(item)}
+                >
+                  <FileBadge2 size={14} color={colors.maroon} />
+                  <Text style={styles.certificateText}>View certificate</Text>
+                </Pressable>
               </View>
             </View>
           );
         })}
       </ScrollView>
+      <Modal
+        visible={Boolean(certificate)}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCertificate(null)}
+      >
+        <View style={styles.modalShade}>
+          <View style={styles.certificate}>
+            <Pressable
+              style={styles.close}
+              onPress={() => setCertificate(null)}
+              accessibilityLabel="Close certificate"
+            >
+              <X size={20} color={colors.ink} />
+            </Pressable>
+            <View style={styles.seal}>
+              <Award size={34} color={colors.gold} />
+            </View>
+            <Text style={styles.certificateKicker}>KD PUBLIC SCHOOL</Text>
+            <Text style={styles.certificateTitle}>
+              Certificate of Achievement
+            </Text>
+            <Text style={styles.presented}>Proudly presented to</Text>
+            <Text style={styles.studentName}>Aarav Kumar</Text>
+            <Text style={styles.certificateBody}>
+              for {certificate?.award.toLowerCase()} in {certificate?.title}.
+            </Text>
+            <Text style={styles.certificateDate}>{certificate?.date}</Text>
+            <Text style={styles.previewNote}>
+              Certificate preview · Demo document
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -151,7 +204,7 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingTop: 12, paddingBottom: 10 },
   flex: { flex: 1 },
   hero: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     borderRadius: 23,
     padding: 20,
     flexDirection: "row",
@@ -252,4 +305,85 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginTop: 8,
   },
+  certificateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    backgroundColor: colors.redSoft,
+    borderRadius: 9,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    marginTop: 11,
+  },
+  certificateText: { color: colors.maroon, fontSize: 8, fontWeight: "900" },
+  modalShade: {
+    flex: 1,
+    backgroundColor: "rgba(15,23,42,0.55)",
+    padding: 22,
+    justifyContent: "center",
+  },
+  certificate: {
+    backgroundColor: colors.cream,
+    borderRadius: 24,
+    padding: 26,
+    alignItems: "center",
+    borderWidth: 5,
+    borderColor: colors.goldSoft,
+    ...shadow,
+  },
+  close: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 13,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  seal: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: colors.maroon,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  certificateKicker: {
+    color: colors.maroon,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+    marginTop: 16,
+  },
+  certificateTitle: {
+    color: colors.ink,
+    fontSize: 23,
+    fontWeight: "900",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  presented: { color: colors.slate, fontSize: 10, marginTop: 17 },
+  studentName: {
+    color: colors.maroon,
+    fontSize: 20,
+    fontWeight: "900",
+    marginTop: 5,
+  },
+  certificateBody: {
+    color: colors.slate,
+    fontSize: 11,
+    lineHeight: 18,
+    textAlign: "center",
+    marginTop: 12,
+  },
+  certificateDate: {
+    color: colors.ink,
+    fontSize: 10,
+    fontWeight: "800",
+    marginTop: 16,
+  },
+  previewNote: { color: colors.muted, fontSize: 8, marginTop: 18 },
 });

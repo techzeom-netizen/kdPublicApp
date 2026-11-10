@@ -7,7 +7,14 @@ import {
   ShieldCheck,
   WalletCards,
 } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BrandGradient } from "../../../components/BrandGradient";
 import { ScreenSkeleton } from "../../../components/ScreenSkeleton";
@@ -59,9 +66,14 @@ export default function Fees() {
                 Breakdown, due dates and payment methods
               </Text>
             </View>
-            <ChevronRight size={21} color={colors.navy} />
+            <ChevronRight size={21} color={colors.maroon} />
           </Pressable>
         </BrandGradient>
+        <View style={styles.feeSummary}>
+          <FeeStat value="₹52,000" label="Annual fees" />
+          <FeeStat value="₹42,000" label="Paid" positive />
+          <FeeStat value="₹10,000" label="Outstanding" danger />
+        </View>
 
         <View style={styles.secureNote}>
           <ShieldCheck size={18} color={colors.green} />
@@ -116,6 +128,33 @@ function DueCard({
   );
 }
 
+function FeeStat({
+  value,
+  label,
+  positive = false,
+  danger = false,
+}: {
+  value: string;
+  label: string;
+  positive?: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <View style={styles.feeStat}>
+      <Text
+        style={[
+          styles.feeStatValue,
+          positive && { color: colors.green },
+          danger && { color: colors.red },
+        ]}
+      >
+        {value}
+      </Text>
+      <Text style={styles.feeStatLabel}>{label}</Text>
+    </View>
+  );
+}
+
 function Payment({
   id,
   label,
@@ -128,7 +167,16 @@ function Payment({
   date: string;
 }) {
   return (
-    <View style={styles.payment}>
+    <Pressable
+      style={styles.payment}
+      onPress={() =>
+        Alert.alert(
+          "Receipt",
+          `Receipt ${id} download will start when the school document service is connected.`,
+        )
+      }
+      accessibilityRole="button"
+    >
       <View style={styles.paidIcon}>
         <Check size={17} color={colors.green} strokeWidth={3} />
       </View>
@@ -145,7 +193,7 @@ function Payment({
           <Text style={styles.paidText}>Receipt</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -212,8 +260,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   pressed: { opacity: 0.88 },
-  detailsTitle: { color: colors.navy, fontWeight: "900", fontSize: 14 },
-  detailsSub: { color: colors.navySoft, fontSize: 10, marginTop: 3 },
+  detailsTitle: { color: colors.maroon, fontWeight: "900", fontSize: 14 },
+  detailsSub: { color: colors.maroonSoft, fontSize: 10, marginTop: 3 },
   secureNote: {
     flexDirection: "row",
     alignItems: "center",
@@ -222,6 +270,17 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secureText: { color: colors.slate, fontSize: 11 },
+  feeSummary: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    borderRadius: 17,
+    paddingVertical: 14,
+    marginTop: 11,
+    ...shadow,
+  },
+  feeStat: { flex: 1, alignItems: "center" },
+  feeStatValue: { color: colors.ink, fontSize: 12, fontWeight: "900" },
+  feeStatLabel: { color: colors.muted, fontSize: 8, marginTop: 4 },
   section: {
     color: colors.ink,
     fontSize: 18,

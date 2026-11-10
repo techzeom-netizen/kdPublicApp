@@ -4,10 +4,20 @@ import {
   ChevronDown,
   Megaphone,
   Pin,
+  Search,
   Share2,
+  Paperclip,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { ScreenSkeleton } from "../../../components/ScreenSkeleton";
@@ -20,12 +30,18 @@ const categories = ["All", "Academic", "Meeting", "School", "Event"] as const;
 export default function Notices() {
   const [category, setCategory] = useState<(typeof categories)[number]>("All");
   const [expanded, setExpanded] = useState<string>("winter-exams");
+  const [query, setQuery] = useState("");
+  const [readIds, setReadIds] = useState<string[]>(["ptm", "sports-day"]);
   const visible = useMemo(
     () =>
       notices.filter(
-        (notice) => category === "All" || notice.category === category,
+        (notice) =>
+          (category === "All" || notice.category === category) &&
+          `${notice.title} ${notice.body}`
+            .toLowerCase()
+            .includes(query.trim().toLowerCase()),
       ),
-    [category],
+    [category, query],
   );
   const isLoading = usePreviewLoading();
   if (isLoading) return <ScreenSkeleton variant="notices" />;
@@ -46,11 +62,24 @@ export default function Notices() {
             <Bell size={20} color={colors.gold} />
           </View>
           <View style={styles.flex}>
-            <Text style={styles.alertTitle}>2 unread notices</Text>
+            <Text style={styles.alertTitle}>
+              {notices.length - readIds.length} unread notices
+            </Text>
             <Text style={styles.alertText}>
               Important updates are pinned at the top.
             </Text>
           </View>
+        </View>
+        <View style={styles.search}>
+          <Search size={18} color={colors.muted} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search notices"
+            placeholderTextColor={colors.muted}
+            style={styles.searchInput}
+            returnKeyType="search"
+          />
         </View>
         <ScrollView
           horizontal
@@ -82,14 +111,24 @@ export default function Notices() {
         </View>
         {visible.map((notice, index) => {
           const isOpen = expanded === notice.id;
+          const isRead = readIds.includes(notice.id);
           return (
             <View
               key={notice.id}
-              style={[styles.notice, index === 0 && styles.pinnedNotice]}
+              style={[
+                styles.notice,
+                index === 0 && styles.pinnedNotice,
+                !isRead && styles.unreadNotice,
+              ]}
             >
               <Pressable
                 style={styles.noticeHeader}
-                onPress={() => setExpanded(isOpen ? "" : notice.id)}
+                onPress={() => {
+                  setExpanded(isOpen ? "" : notice.id);
+                  setReadIds((ids) =>
+                    ids.includes(notice.id) ? ids : [...ids, notice.id],
+                  );
+                }}
                 accessibilityState={{ expanded: isOpen }}
               >
                 <View
@@ -112,6 +151,7 @@ export default function Notices() {
                       {notice.category.toUpperCase()}
                     </Text>
                     <Text style={styles.priority}>{notice.priority}</Text>
+                    {!isRead ? <View style={styles.unreadDot} /> : null}
                   </View>
                   <Text style={styles.noticeTitle}>{notice.title}</Text>
                   <View style={styles.dateRow}>
@@ -128,7 +168,21 @@ export default function Notices() {
               {isOpen ? (
                 <View style={styles.noticeBody}>
                   <Text style={styles.bodyText}>{notice.body}</Text>
-                  <Pressable style={styles.share}>
+                  <View style={styles.fileRow}>
+                    <Paperclip size={13} color={colors.maroon} />
+                    <Text style={styles.fileText}>
+                      Circular attachment · PDF
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={styles.share}
+                    onPress={() =>
+                      Alert.alert(
+                        "Share notice",
+                        "Sharing will use the device share sheet when document services are connected.",
+                      )
+                    }
+                  >
                     <Share2 size={14} color={colors.maroon} />
                     <Text style={styles.shareText}>Share notice</Text>
                   </Pressable>
@@ -137,6 +191,14 @@ export default function Notices() {
             </View>
           );
         })}
+        {!visible.length ? (
+          <View style={styles.empty}>
+            <Text style={styles.emptyTitle}>No notices found</Text>
+            <Text style={styles.emptyText}>
+              Try another search or category.
+            </Text>
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -148,7 +210,7 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingTop: 12, paddingBottom: 10 },
   flex: { flex: 1 },
   alert: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     borderRadius: 18,
     padding: 15,
     flexDirection: "row",
@@ -166,6 +228,17 @@ const styles = StyleSheet.create({
   },
   alertTitle: { color: colors.white, fontSize: 13, fontWeight: "900" },
   alertText: { color: "#B8C7D7", fontSize: 9, marginTop: 4 },
+  search: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    backgroundColor: colors.white,
+    borderRadius: 15,
+    paddingHorizontal: 13,
+    marginTop: 12,
+    ...shadow,
+  },
+  searchInput: { flex: 1, minHeight: 46, color: colors.ink, fontSize: 12 },
   filters: { gap: 8, paddingVertical: 17 },
   filter: {
     paddingHorizontal: 14,
@@ -198,6 +271,13 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   pinnedNotice: { borderWidth: 1, borderColor: "#ECD7DB" },
+  unreadNotice: { borderLeftWidth: 4, borderLeftColor: colors.maroon },
+  unreadDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: colors.maroon,
+  },
   noticeHeader: { padding: 14, flexDirection: "row", alignItems: "flex-start" },
   noticeIcon: {
     width: 40,
@@ -243,6 +323,16 @@ const styles = StyleSheet.create({
     paddingTop: 13,
   },
   bodyText: { color: colors.slate, fontSize: 11, lineHeight: 18 },
+  fileRow: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
+    backgroundColor: colors.maroonTint,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
+  },
+  fileText: { color: colors.maroon, fontSize: 9, fontWeight: "800" },
   share: {
     flexDirection: "row",
     alignItems: "center",
@@ -251,4 +341,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   shareText: { color: colors.maroon, fontSize: 10, fontWeight: "900" },
+  empty: {
+    backgroundColor: colors.white,
+    borderRadius: 18,
+    padding: 28,
+    alignItems: "center",
+    ...shadow,
+  },
+  emptyTitle: { color: colors.ink, fontSize: 15, fontWeight: "900" },
+  emptyText: { color: colors.slate, fontSize: 10, marginTop: 5 },
 });

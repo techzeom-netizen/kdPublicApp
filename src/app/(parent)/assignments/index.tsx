@@ -6,9 +6,17 @@ import {
   FileText,
   Paperclip,
   Send,
+  X,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BrandGradient } from "../../../components/BrandGradient";
 import { ScreenHeader } from "../../../components/ScreenHeader";
@@ -16,7 +24,7 @@ import { ScreenSkeleton } from "../../../components/ScreenSkeleton";
 import { usePreviewLoading } from "../../../hooks/usePreviewLoading";
 import { colors, shadow, spacing } from "../../../theme";
 
-type Filter = "Active" | "Submitted" | "Graded";
+type Filter = "Active" | "Submitted" | "Graded" | "Late";
 
 const assignments = [
   {
@@ -30,6 +38,7 @@ const assignments = [
     files: "2 resources",
     color: colors.green,
     status: "Active" as Filter,
+    assigned: "5 Nov 2026",
   },
   {
     id: "math-model",
@@ -40,8 +49,9 @@ const assignments = [
     due: "Due 16 Nov",
     teacher: "Ms. Ritu",
     files: "1 worksheet",
-    color: colors.navy,
+    color: colors.maroon,
     status: "Active" as Filter,
+    assigned: "7 Nov 2026",
   },
   {
     id: "english-book",
@@ -53,6 +63,7 @@ const assignments = [
     files: "1 submission",
     color: colors.maroon,
     status: "Submitted" as Filter,
+    assigned: "1 Nov 2026",
   },
   {
     id: "sst-map",
@@ -64,21 +75,40 @@ const assignments = [
     files: "Teacher feedback",
     color: colors.amber,
     status: "Graded" as Filter,
+    assigned: "20 Oct 2026",
+  },
+  {
+    id: "hindi-journal",
+    subject: "Hindi",
+    title: "Festival reflection journal",
+    detail: "Write one page about a family festival tradition.",
+    due: "Due 6 Nov",
+    teacher: "Mrs. Joshi",
+    files: "1 guide",
+    color: colors.amber,
+    status: "Late" as Filter,
+    assigned: "30 Oct 2026",
   },
 ];
 
 export default function Assignments() {
   const [filter, setFilter] = useState<Filter>("Active");
   const [submittedIds, setSubmittedIds] = useState<string[]>([]);
+  const [subject, setSubject] = useState("All");
+  const [selected, setSelected] = useState<(typeof assignments)[number] | null>(
+    null,
+  );
   const isLoading = usePreviewLoading();
   const visible = useMemo(
     () =>
-      assignments.filter((item) =>
-        filter === "Submitted"
-          ? item.status === "Submitted" || submittedIds.includes(item.id)
-          : item.status === filter && !submittedIds.includes(item.id),
+      assignments.filter(
+        (item) =>
+          (subject === "All" || item.subject === subject) &&
+          (filter === "Submitted"
+            ? item.status === "Submitted" || submittedIds.includes(item.id)
+            : item.status === filter && !submittedIds.includes(item.id)),
       ),
-    [filter, submittedIds],
+    [filter, submittedIds, subject],
   );
   if (isLoading) return <ScreenSkeleton variant="homework" />;
 
@@ -115,25 +145,61 @@ export default function Assignments() {
             <Text style={styles.scoreLabel}>GRADED</Text>
           </View>
         </BrandGradient>
+        <View style={styles.overview}>
+          <Mini value={String(assignments.length)} label="Total" />
+          <Mini value="1" label="Submitted" />
+          <Mini value="2" label="Pending" />
+          <Mini value="1" label="Late" danger />
+        </View>
 
         <View style={styles.filters}>
-          {(["Active", "Submitted", "Graded"] as Filter[]).map((item) => (
+          {(["Active", "Submitted", "Graded", "Late"] as Filter[]).map(
+            (item) => (
+              <Pressable
+                key={item}
+                style={[styles.filter, filter === item && styles.filterActive]}
+                onPress={() => setFilter(item)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    filter === item && styles.filterTextActive,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </Pressable>
+            ),
+          )}
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.subjectFilters}
+        >
+          {[
+            "All",
+            ...Array.from(new Set(assignments.map((item) => item.subject))),
+          ].map((item) => (
             <Pressable
               key={item}
-              style={[styles.filter, filter === item && styles.filterActive]}
-              onPress={() => setFilter(item)}
+              style={[
+                styles.subjectFilter,
+                subject === item && styles.subjectFilterActive,
+              ]}
+              onPress={() => setSubject(item)}
             >
               <Text
                 style={[
-                  styles.filterText,
-                  filter === item && styles.filterTextActive,
+                  styles.subjectFilterText,
+                  subject === item && styles.subjectFilterTextActive,
                 ]}
               >
                 {item}
               </Text>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
 
         <View style={styles.sectionRow}>
           <Text style={styles.sectionTitle}>{filter} work</Text>
@@ -164,6 +230,9 @@ export default function Assignments() {
               ) : null}
             </View>
             <Text style={styles.detail}>{item.detail}</Text>
+            <Text style={styles.assigned}>
+              Assigned {item.assigned} · Deadline {item.due.replace("Due ", "")}
+            </Text>
             <View style={styles.metaRow}>
               <View style={styles.meta}>
                 <Clock3
@@ -212,6 +281,14 @@ export default function Assignments() {
                 </Pressable>
               )}
             </View>
+            <Pressable
+              style={styles.detailsLink}
+              onPress={() => setSelected(item)}
+            >
+              <Text style={styles.detailsLinkText}>
+                View assignment details & files
+              </Text>
+            </Pressable>
           </View>
         ))}
 
@@ -237,7 +314,62 @@ export default function Assignments() {
           </View>
         </View>
       </ScrollView>
+      <Modal
+        visible={Boolean(selected)}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelected(null)}
+      >
+        <View style={styles.modalShade}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalTop}>
+              <View style={styles.flex}>
+                <Text style={styles.modalSubject}>
+                  {selected?.subject.toUpperCase()}
+                </Text>
+                <Text style={styles.modalTitle}>{selected?.title}</Text>
+              </View>
+              <Pressable style={styles.close} onPress={() => setSelected(null)}>
+                <X size={20} color={colors.ink} />
+              </Pressable>
+            </View>
+            <Text style={styles.modalBody}>{selected?.detail}</Text>
+            <View style={styles.filePreview}>
+              <Paperclip size={22} color={colors.maroon} />
+              <View>
+                <Text style={styles.fileTitle}>{selected?.files}</Text>
+                <Text style={styles.fileMeta}>
+                  Attachment preview · Demo resource
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.modalMeta}>Teacher: {selected?.teacher}</Text>
+            <Text style={styles.modalMeta}>
+              Assigned {selected?.assigned} · {selected?.due}
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
+  );
+}
+
+function Mini({
+  value,
+  label,
+  danger = false,
+}: {
+  value: string;
+  label: string;
+  danger?: boolean;
+}) {
+  return (
+    <View style={styles.mini}>
+      <Text style={[styles.miniValue, danger && { color: colors.red }]}>
+        {value}
+      </Text>
+      <Text style={styles.miniLabel}>{label}</Text>
+    </View>
   );
 }
 
@@ -279,6 +411,17 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   summaryText: { color: "#E6CBD0", fontSize: 9, marginTop: 5 },
+  overview: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    paddingVertical: 13,
+    marginTop: 10,
+    ...shadow,
+  },
+  mini: { flex: 1, alignItems: "center" },
+  miniValue: { color: colors.ink, fontSize: 16, fontWeight: "900" },
+  miniLabel: { color: colors.muted, fontSize: 8, marginTop: 3 },
   score: {
     alignItems: "center",
     borderLeftWidth: 1,
@@ -303,6 +446,21 @@ const styles = StyleSheet.create({
   filterActive: { backgroundColor: colors.white, ...shadow },
   filterText: { color: colors.slate, fontSize: 10, fontWeight: "800" },
   filterTextActive: { color: colors.maroon },
+  subjectFilters: { gap: 7, paddingVertical: 13 },
+  subjectFilter: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 99,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  subjectFilterActive: {
+    backgroundColor: colors.maroon,
+    borderColor: colors.maroon,
+  },
+  subjectFilterText: { color: colors.slate, fontSize: 9, fontWeight: "800" },
+  subjectFilterTextActive: { color: colors.white },
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -347,6 +505,7 @@ const styles = StyleSheet.create({
   },
   gradedText: { color: colors.green, fontSize: 8, fontWeight: "900" },
   detail: { color: colors.slate, fontSize: 10, lineHeight: 16, marginTop: 13 },
+  assigned: { color: colors.muted, fontSize: 8, marginTop: 7 },
   metaRow: {
     flexDirection: "row",
     gap: 16,
@@ -391,12 +550,20 @@ const styles = StyleSheet.create({
   },
   statusText: { color: colors.green, fontSize: 8, fontWeight: "900" },
   feedbackButton: {
-    backgroundColor: colors.navyTint,
+    backgroundColor: colors.maroonTint,
     borderRadius: 10,
     paddingHorizontal: 11,
     paddingVertical: 8,
   },
-  feedbackText: { color: colors.navy, fontSize: 8, fontWeight: "900" },
+  feedbackText: { color: colors.maroon, fontSize: 8, fontWeight: "900" },
+  detailsLink: {
+    backgroundColor: colors.canvas,
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+    marginTop: 11,
+  },
+  detailsLinkText: { color: colors.maroon, fontSize: 9, fontWeight: "900" },
   empty: {
     backgroundColor: colors.white,
     borderRadius: 20,
@@ -428,11 +595,63 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 11,
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     borderRadius: 17,
     padding: 14,
     marginTop: 10,
   },
   tipTitle: { color: colors.white, fontSize: 11, fontWeight: "900" },
   tipText: { color: "#B8C7D7", fontSize: 8, lineHeight: 13, marginTop: 3 },
+  modalShade: {
+    flex: 1,
+    backgroundColor: "rgba(15,23,42,0.48)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    padding: 20,
+    paddingBottom: 34,
+  },
+  modalTop: { flexDirection: "row", gap: 12 },
+  modalSubject: {
+    color: colors.maroon,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+  },
+  modalTitle: {
+    color: colors.ink,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "900",
+    marginTop: 5,
+  },
+  close: {
+    width: 38,
+    height: 38,
+    borderRadius: 13,
+    backgroundColor: colors.canvas,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalBody: {
+    color: colors.slate,
+    fontSize: 12,
+    lineHeight: 19,
+    marginTop: 16,
+  },
+  filePreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    backgroundColor: colors.maroonTint,
+    borderRadius: 15,
+    padding: 14,
+    marginTop: 16,
+  },
+  fileTitle: { color: colors.ink, fontSize: 11, fontWeight: "900" },
+  fileMeta: { color: colors.slate, fontSize: 9, marginTop: 3 },
+  modalMeta: { color: colors.slate, fontSize: 10, marginTop: 10 },
 });

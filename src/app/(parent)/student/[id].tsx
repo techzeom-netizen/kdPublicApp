@@ -72,7 +72,7 @@ export default function StudentProfile() {
             value={student.dateOfBirth}
           />
           <Detail
-            icon={<Droplets size={19} color={colors.navy} />}
+            icon={<Droplets size={19} color={colors.maroon} />}
             label="Blood group"
             value={student.bloodGroup}
           />
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   backSpacer: { width: 42 },
   topTitle: { color: colors.ink, fontWeight: "900", fontSize: 16 },
   hero: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     alignItems: "center",
     borderRadius: 24,
     padding: 23,

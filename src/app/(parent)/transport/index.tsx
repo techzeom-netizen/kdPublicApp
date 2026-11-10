@@ -42,13 +42,11 @@ export default function Transport() {
   const stops =
     trip === "Morning pickup"
       ? morningStops
-      : [...morningStops]
-          .reverse()
-          .map((stop, index) => ({
-            ...stop,
-            time: ["2:20 PM", "2:37 PM", "2:51 PM", "3:05 PM"][index],
-            status: index === 1 ? "active" : index < 1 ? "done" : "next",
-          }));
+      : [...morningStops].reverse().map((stop, index) => ({
+          ...stop,
+          time: ["2:20 PM", "2:37 PM", "2:51 PM", "3:05 PM"][index],
+          status: index === 1 ? "active" : index < 1 ? "done" : "next",
+        }));
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView
@@ -93,23 +91,23 @@ export default function Transport() {
             <MapPin size={18} color={colors.white} />
           </View>
           <View style={styles.busPin}>
-            <BusFront size={22} color={colors.navy} />
+            <BusFront size={22} color={colors.maroon} />
           </View>
           <View style={styles.livePill}>
             <View style={styles.liveDot} />
-            <Text style={styles.liveText}>LIVE</Text>
+            <Text style={styles.liveText}>DEMO MAP</Text>
           </View>
           <Pressable
             style={styles.refreshPill}
             onPress={() => setUpdatedLabel("just now")}
             accessibilityLabel="Refresh bus location"
           >
-            <RefreshCw size={12} color={colors.navy} />
+            <RefreshCw size={12} color={colors.maroon} />
             <Text style={styles.refreshText}>Refresh</Text>
           </Pressable>
           <View style={styles.mapLabel}>
             <Text style={styles.mapLabelTitle}>Bus 04</Text>
-            <Text style={styles.mapLabelText}>2.1 km away · moving</Text>
+            <Text style={styles.mapLabelText}>Sample route position</Text>
           </View>
         </View>
 
@@ -118,7 +116,7 @@ export default function Transport() {
             <Navigation size={23} color={colors.gold} />
           </View>
           <View style={styles.flex}>
-            <Text style={styles.etaLabel}>ARRIVING AT GREEN PARK</Text>
+            <Text style={styles.etaLabel}>SAMPLE ETA · GREEN PARK</Text>
             <Text style={styles.etaValue}>
               7:42 AM <Text style={styles.etaMinutes}>· 6 min</Text>
             </Text>
@@ -128,7 +126,26 @@ export default function Transport() {
 
         <View style={styles.safety}>
           <ShieldCheck size={18} color={colors.green} />
-          <Text style={styles.safetyText}>Aarav boarded Bus 04 at 7:24 AM</Text>
+          <Text style={styles.safetyText}>
+            Demo journey status · not live GPS data
+          </Text>
+        </View>
+        <View style={styles.locations}>
+          <View style={styles.locationItem}>
+            <MapPin size={17} color={colors.green} />
+            <View>
+              <Text style={styles.locationLabel}>PICKUP</Text>
+              <Text style={styles.locationValue}>Green Park · Gate 2</Text>
+            </View>
+          </View>
+          <View style={styles.locationDivider} />
+          <View style={styles.locationItem}>
+            <MapPin size={17} color={colors.maroon} />
+            <View>
+              <Text style={styles.locationLabel}>DROP-OFF</Text>
+              <Text style={styles.locationValue}>KD Public School</Text>
+            </View>
+          </View>
         </View>
         <View style={styles.sectionRow}>
           <Text style={styles.section}>Route progress</Text>
@@ -148,7 +165,7 @@ export default function Transport() {
                   {stop.status === "done" ? (
                     <Check size={11} color={colors.white} strokeWidth={3} />
                   ) : stop.status === "active" ? (
-                    <BusFront size={12} color={colors.navy} />
+                    <BusFront size={12} color={colors.maroon} />
                   ) : null}
                 </View>
                 {index < stops.length - 1 ? (
@@ -347,7 +364,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  refreshText: { color: colors.navy, fontSize: 8, fontWeight: "900" },
+  refreshText: { color: colors.maroon, fontSize: 8, fontWeight: "900" },
   mapLabel: {
     position: "absolute",
     left: 14,
@@ -360,7 +377,7 @@ const styles = StyleSheet.create({
   mapLabelTitle: { color: colors.ink, fontSize: 12, fontWeight: "900" },
   mapLabelText: { color: colors.slate, fontSize: 8, marginTop: 3 },
   etaCard: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.maroon,
     borderRadius: 19,
     padding: 16,
     flexDirection: "row",
@@ -400,6 +417,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   safetyText: { color: colors.green, fontSize: 10, fontWeight: "800" },
+  locations: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 10,
+    ...shadow,
+  },
+  locationItem: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8 },
+  locationDivider: {
+    width: 1,
+    backgroundColor: colors.line,
+    marginHorizontal: 8,
+  },
+  locationLabel: {
+    color: colors.muted,
+    fontSize: 7,
+    fontWeight: "900",
+    letterSpacing: 0.6,
+  },
+  locationValue: {
+    color: colors.ink,
+    fontSize: 9,
+    fontWeight: "800",
+    marginTop: 3,
+  },
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -9,7 +9,7 @@ const notifications = [
   { id: 'attendance', title: 'Attendance marked', message: 'Aarav is present today. Check-in recorded at 8:14 AM.', time: 'Now', icon: CalendarCheck2, color: colors.green, tint: colors.greenSoft, route: '/(parent)/attendance' as const },
   { id: 'fees', title: 'Fee reminder', message: 'The November fee instalment is due on 15 November.', time: '42 min', icon: IndianRupee, color: colors.maroon, tint: colors.redSoft, route: '/(parent)/fees' as const },
   { id: 'notice', title: 'New school notice', message: 'Parent-teacher meeting slots are now available.', time: '2 hr', icon: Megaphone, color: colors.amber, tint: colors.goldSoft, route: '/(parent)/notices' as const },
-  { id: 'homework', title: 'Homework added', message: 'Science: Parts of a flower diagram is due on 12 Nov.', time: 'Yesterday', icon: BookOpenCheck, color: colors.navy, tint: colors.navyTint, route: '/(parent)/homework' as const },
+  { id: 'homework', title: 'Homework added', message: 'Science: Parts of a flower diagram is due on 12 Nov.', time: 'Yesterday', icon: BookOpenCheck, color: colors.maroon, tint: colors.maroonTint, route: '/(parent)/homework' as const },
   { id: 'bus', title: 'Bus route updated', message: 'Bus 04 is running on time for the Green Park stop.', time: '6 Nov', icon: BusFront, color: colors.green, tint: colors.greenSoft, route: '/(parent)/transport' as const },
 ];
 

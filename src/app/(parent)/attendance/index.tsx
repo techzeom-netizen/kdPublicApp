@@ -12,7 +12,7 @@ import { usePreviewLoading } from "../../../hooks/usePreviewLoading";
 import { colors, shadow, spacing } from "../../../theme";
 
 type MonthItem = { key: string; label: string; month: number; year: number };
-type DayStatus = "present" | "absent" | "late" | "holiday" | "future";
+type DayStatus = "present" | "absent" | "late" | "leave" | "holiday" | "future";
 
 const now = new Date();
 const academicStartYear =
@@ -46,6 +46,7 @@ function statusFor(item: MonthItem, day: number): DayStatus {
   const seed = day + item.month * 3;
   if (seed % 17 === 0) return "absent";
   if (seed % 11 === 0) return "late";
+  if (seed % 23 === 0) return "leave";
   return "present";
 }
 
@@ -58,10 +59,15 @@ function getStats(item: MonthItem) {
     (value) => value === "present" || value === "late",
   ).length;
   const absent = statuses.filter((value) => value === "absent").length;
-  const working = present + absent;
+  const late = statuses.filter((value) => value === "late").length;
+  const leave = statuses.filter((value) => value === "leave").length;
+  const working = present + absent + leave;
   return {
     present,
     absent,
+    late,
+    leave,
+    working,
     percentage: working ? Math.round((present / working) * 100) : 0,
   };
 }
@@ -228,6 +234,7 @@ function MonthCalendar({ item }: { item: MonthItem }) {
           color={colors.green}
         />
         <MiniStat value={`${stats.absent}`} label="Absent" color={colors.red} />
+        <MiniStat value={`${stats.late}`} label="Late" color={colors.amber} />
       </View>
       <View style={styles.weekRow}>
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
@@ -269,6 +276,7 @@ function MonthCalendar({ item }: { item: MonthItem }) {
         <Legend color={colors.green} label="Present" />
         <Legend color={colors.red} label="Absent" />
         <Legend color={colors.amber} label="Late" />
+        <Legend color={colors.maroon} label="Leave" />
         <Legend color={colors.muted} label="Holiday" />
       </View>
     </View>
@@ -433,7 +441,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 12,
   },
-  todayCell: { backgroundColor: colors.navy },
+  todayCell: { backgroundColor: colors.maroon },
   dayNumber: { color: colors.ink, fontSize: 12, fontWeight: "800" },
   todayNumber: { color: colors.white },
   futureText: { color: colors.muted },
@@ -441,6 +449,7 @@ const styles = StyleSheet.create({
   presentDot: { backgroundColor: colors.green },
   absentDot: { backgroundColor: colors.red },
   lateDot: { backgroundColor: colors.amber },
+  leaveDot: { backgroundColor: colors.maroon },
   holidayDot: { backgroundColor: colors.muted },
   futureDot: { backgroundColor: colors.line },
   legend: {
