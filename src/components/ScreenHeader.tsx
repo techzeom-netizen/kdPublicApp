@@ -1,12 +1,25 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, shadow } from '../theme';
 
 export function ScreenHeader({ title, eyebrow, subtitle }: { title: string; eyebrow?: string; subtitle?: string }) {
+  const goToAcademics = useCallback(() => router.navigate('/academics'), []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        goToAcademics();
+        return true;
+      });
+      return () => subscription.remove();
+    }, [goToAcademics]),
+  );
+
   return <>
     <View style={styles.row}>
-      <Pressable style={({ pressed }) => [styles.back, pressed && styles.pressed]} onPress={() => router.back()} accessibilityLabel="Go back"><ArrowLeft size={21} color={colors.ink} /></Pressable>
+      <Pressable style={({ pressed }) => [styles.back, pressed && styles.pressed]} onPress={goToAcademics} accessibilityLabel="Back to academics"><ArrowLeft size={21} color={colors.ink} /></Pressable>
       <Text style={styles.centerTitle}>{title}</Text><View style={styles.spacer} />
     </View>
     {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}

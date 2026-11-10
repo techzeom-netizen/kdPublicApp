@@ -8,7 +8,7 @@ const hiddenTabOptions = {
 };
 
 export default function ParentLayout() {
-  return <Tabs screenOptions={{
+  return <Tabs backBehavior="history" screenOptions={{
     headerShown: false,
     tabBarActiveTintColor: colors.maroon,
     tabBarInactiveTintColor: colors.muted,
